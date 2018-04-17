@@ -21,5 +21,6 @@ export default {
     PlayList,
     AlbumList,
   },
+  methods: {},
 };
 </script>

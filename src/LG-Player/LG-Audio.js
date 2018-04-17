@@ -98,7 +98,9 @@ class LGAudio {
 
   bindEvents() {
     const audio = this.audio;
-    // audio.addEventListener('timeupdate', this.options.getPosition, false);
+    audio.addEventListener('timeupdate', function(){
+      // console.log(audio.currentTime)
+    }, false);
   }
 
 }
