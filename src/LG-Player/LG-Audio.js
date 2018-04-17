@@ -7,6 +7,7 @@ class LGAudio {
     this.src = null;
     this.playState = null;
     this.initAudio();
+    this.bindEvents();
   }
 
   initAudio() {
@@ -40,33 +41,26 @@ class LGAudio {
 
   play() {
     if (!this.src) {
-      console.log(1)
       return;
     }
     if (
       this.playState === PlayState.LOADING ||
       this.playState === PlayState.PLAYING
     ) {
-      console.log(2)
-      
       return;
     }
     if (this.audio.src !== this.src) {
-      console.log(3)
-      console.log(this.audio.src)
-      console.log(this.src)
-      this.loadAudio(); // 此时
+      this.loadAudio();
       this.setPlayState(PlayState.LOADING);
     } else {
-      console.log('resume')
       // resume
       this.audio.play();
     }
   }
 
   pause() {
-    console.log('pause');
     this.audio.pause();
+    this.setPlayState(PlayState.PAUSED);
   }
 
   resetAudio() {
@@ -88,19 +82,25 @@ class LGAudio {
     return this.audio.volume;
   }
 
-  setSound(src) {
+  setSong(song) {
     this.stop();
     if (
       this.playState === PlayState.LOADING ||
       this.playState === PlayState.PLAYING ||
       this.playState === PlayState.PAUSED
     ) {
-      console.log(9)
       return;
     }
-    this.src = src;
+    this.src = song.url;
     this.setPlayState(PlayState.READY);
+    console.log(this.src)
   }
+
+  bindEvents() {
+    const audio = this.audio;
+    // audio.addEventListener('timeupdate', this.options.getPosition, false);
+  }
+
 }
 
 export default LGAudio;

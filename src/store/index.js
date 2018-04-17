@@ -1,19 +1,16 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import LGPlayer from '../LG-Player';
+import Request from '../api';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
   state: {
-    musicList: [
-      1,
-      2,
-      3,
-      4,
-    ],
-    currentIndex: 0,
+    musicList: [],
+    currentSong: null,
+    playList: null,
     isPlaying: false,
     player: null,
   },
@@ -42,6 +39,19 @@ const store = new Vuex.Store({
     init: (state) => {
       state.player = new LGPlayer();
     },
+    setPlayList: (state, playList) => {
+      if (state.playList && state.playList.id !== playList.id) {
+        state.playList = { ...playList };
+      }
+      if (!state.playList) {
+        state.playList = { ...playList };
+      }
+      state.player.setPlayList(state.playList);
+    },
+    setCurSong: (state, song) => {
+      state.currentSong = { ...song };
+      state.player.setSong(state.currentSong);
+    },
   },
   actions: {
     next: ({ commit }) => {
@@ -59,6 +69,19 @@ const store = new Vuex.Store({
     },
     pause: ({ commit }) => {
       commit('pause');
+    },
+    setPlayList: ({ commit }, playList) => {
+      commit('setPlayList', playList);
+    },
+    setCurSong: async ({ commit, dispatch }, song) => {
+      const res = await Request.getMusic(song.id);
+      const url = res.data.data[0].url;
+      const _song = {
+        ...song,
+        url,
+      };
+      commit('setCurSong', _song);
+      dispatch('play');
     },
   },
 });

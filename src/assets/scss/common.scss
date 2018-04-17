@@ -1,3 +1,19 @@
-body,html{
-  margin: 0;
+body,
+html {
+    margin: 0;
+}
+
+.album-list,
+.music-list {
+    list-style: none;
+    padding: 0;
+    li {
+        margin-bottom: 1em;
+        &.active {
+            color: red;
+        }
+        img {
+            vertical-align: middle;
+        }
+    }
 }

@@ -5,21 +5,20 @@ import { PlayMode } from '../constants';
 class LGPlayer {
   constructor(options = {}) {
     this.options = options;
-    this.sound = null;
+    this.song = null;
     this.playState = null;
     this.volume = 1;
-		this.muted = false;
+    this.muted = false;
     this.audio = new LGAudio();
-    this.playList = options.playList || [];
+    this.playList = [];
+  }
+
+  setPlayList(playList) {
+    this.playList = playList;
   }
 
   play() {
-    if(playList.length > 0 && !this.sound){
-      if(this.mode !== PlayMode.RANDOM){
-        this.setSound(this.playList[0])
-      }
-      this.audio.play();
-    }
+    this.audio.play();
   }
 
   pause() {
@@ -58,9 +57,9 @@ class LGPlayer {
     this._setVolume(this.volume);
   }
 
-  setSound(sound) {
-    this.sound = sound;
-    this.audio.setSound(sound.src);
+  setSong(song) {
+    this.song = song;
+    this.audio.setSong(song);
   }
 }
 

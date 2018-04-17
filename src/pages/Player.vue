@@ -1,26 +1,25 @@
 <template>
   <div>
-    <audio src=""></audio>
     <player-controller></player-controller>
-    <player-list></player-list>
+    <play-list></play-list>
+    <album-list></album-list>
   </div>
 </template>
 <style scoped lang="scss"></style>
 <script>
 import PlayerController from '@/components/PlayerController';
-import PlayerList from '@/pages/PlayerList';
+import PlayList from '@/pages/PlayList';
+import AlbumList from '@/pages/AlbumList';
 
 export default {
   name: 'player',
   data() {
     return {};
   },
-  created() {
-    this.$store.commit('init');
-  },
   components: {
     PlayerController,
-    PlayerList,
+    PlayList,
+    AlbumList,
   },
 };
 </script>
