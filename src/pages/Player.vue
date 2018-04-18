@@ -1,15 +1,12 @@
 <template>
-  <div>
+  <div class="player">
     <player-controller></player-controller>
     <play-list></play-list>
-    <album-list></album-list>
   </div>
 </template>
-<style scoped lang="scss"></style>
 <script>
 import PlayerController from '@/components/PlayerController';
 import PlayList from '@/pages/PlayList';
-import AlbumList from '@/pages/AlbumList';
 
 export default {
   name: 'player',
@@ -19,8 +16,16 @@ export default {
   components: {
     PlayerController,
     PlayList,
-    AlbumList,
   },
   methods: {},
 };
 </script>
+<style scoped lang="scss">
+.player{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+}
+</style>
