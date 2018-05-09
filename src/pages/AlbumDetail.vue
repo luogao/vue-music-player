@@ -43,7 +43,7 @@ export default {
     async getListDetail() {
       const { id } = this.$route.params;
       const res = await Request.getListDetail(id);
-      const { tracks, ...playListInfo} = res.data.result;
+      const { tracks, ...playListInfo } = res.data.result;
       this.musicList = [...tracks];
       this.playListInfo = {
         ...playListInfo,

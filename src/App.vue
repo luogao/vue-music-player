@@ -1,15 +1,20 @@
 <template>
   <div id="app">
     <router-view/>
-    <player></player>
+    <player :config='config'></player>
   </div>
 </template>
 
 <script>
-import Player from '@/pages/Player';
+import Player from '@/components/Player';
 
 export default {
   name: 'App',
+  data() {
+    return {
+      config: {},
+    }
+  },
   created() {
     this.$store.commit('init');
   },
