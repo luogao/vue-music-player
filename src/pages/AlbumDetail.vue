@@ -44,7 +44,15 @@ export default {
       const { id } = this.$route.params;
       const res = await Request.getListDetail(id);
       const { tracks, ...playListInfo } = res.data.result;
-      this.albumDetailTracks = [...tracks];
+      const pArr = tracks.map(el => {
+        return Request.getMusic(el.id)
+      });
+      const resultArr = await Promise.all(pArr);
+      const tracksWithUrl = resultArr.map((el,index) => {
+        let url = el.data.data[0].url;
+        return {...tracks[index], url};
+      });
+      this.albumDetailTracks = [...tracksWithUrl];
       this.playListInfo = {
         ...playListInfo,
       };
@@ -57,17 +65,8 @@ export default {
           tracks: this.albumDetailTracks,
         };
         this.setMusicList(musicList);
-      }
-      const res = await Request.getMusic(id);
-      const url = res.data.data[0].url;
-      const music = {
-        ...selectedMusic,
-        url,
       };
-      console.log(music.url)
-      this.$nextTick().then(
-        this.$parent.$refs.player.play(music)
-      );
+      this.$nextTick().then(this.$parent.$refs.player.play(selectedMusic));
     },
   },
 };

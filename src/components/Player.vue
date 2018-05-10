@@ -1,11 +1,14 @@
 <template>
   <div class="player">
-    <img width="50" height="50" :src="currentMusic.album.blurPicUrl" alt="">
-    {{currentMusic.name}}
+    <div v-if="currentMusic">
+      <img width="50" height="50" :src="currentMusic.album.blurPicUrl" alt="">
+      {{currentMusic.name}} {{currentIndex}}
+      {{fulltime}}
+    </div>
     <div>
-      <button>next</button>
+      <button @click="changeMusic('prev')">prev</button>
       <button @click="toggle">{{media.paused? 'play' : 'pause'}}</button>
-      <button>prev</button>
+      <button @click="changeMusic('next')">next</button>
     </div>
   </div>
 </template>
@@ -37,6 +40,12 @@ export default {
       'media',
       'currentMusic',
     ]),
+    currentIndex() {
+      return this.musicList.findIndex(el => el.id === this.currentMusic.id);
+    },
+    fulltime() {
+      return this.timeSecondsFormat(this.media.duration)
+    },
   },
   components: {
     PlayerController,
@@ -66,6 +75,7 @@ export default {
       });
     });
     this.syncMedia(this.audio);
+    this.audio.addEventListener('ended', this.endedHandler);
   },
   methods: {
     ...mapMutations([
@@ -96,12 +106,56 @@ export default {
       })
     },
     pause() {
-      this.audio.pause()
+      this.audio.pause();
     },
     toggle() {
       console.log(this.media.paused)
       this.audio.paused ? this.play() : this.pause();
-    }
+    },
+    prevIndex () {
+      if (this.musicList.length > 1) {
+        return this.currentIndex - 1 < 0 ? this.musicList.length - 1 : this.currentIndex - 1;
+      } else {
+        return 0;
+      }
+    },
+    nextIndex () {
+      if (this.musicList.length > 1) {
+        return (this.currentIndex + 1) % this.musicList.length;
+      } else {
+        return 0;
+      }
+    },
+    async changeMusic (type) {
+      const index = type === 'next' ? this.nextIndex() : this.prevIndex();
+      const music = this.musicList[index];
+      await this.play(music);
+    },
+    endedHandler () {
+      this.changeMusic('next');
+    },
+    timeSecondsFormat (time){
+      time = time || 0
+      const minutes = Math.floor(time / 60)
+      const seconds = Math.floor(time % 60)
+      return `${this.padStart(minutes.toString(), 2, '0')}:${this.padStart(seconds.toString(), 2, '0')}`
+    },
+    padStart(target, targetLength,padString) {
+      // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+      padString = String((typeof padString !== 'undefined' ? padString : ' '));
+      if (this.length > targetLength) {
+        return String(target);
+      }
+      else {
+        targetLength = targetLength-target.length;
+        if (targetLength > padString.length) {
+            padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+        }
+        return padString.slice(0,targetLength) + String(target);
+      }
+    },
   },
 };
 </script>
