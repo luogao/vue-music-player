@@ -26,7 +26,7 @@ export default {
     };
   },
   mounted() {
-    this.getAlbumList(10);
+    this.getAlbumList(20);
   },
   methods: {
     async getAlbumList(limit) {

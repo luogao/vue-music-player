@@ -9,7 +9,7 @@ class MusicManager {
   }
 
   getList(limit = 10) {
-    return this.$http.get(`${Wyurl.TOPLIST}?limit=${limit}`);
+    return this.$http.get(`${Wyurl.TOPLIST}?limit=${limit}&cat=流行`);
   }
 
   getListDetail(id) {

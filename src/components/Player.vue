@@ -3,17 +3,20 @@
     <div v-if="currentMusic">
       <img width="50" height="50" :src="currentMusic.album.blurPicUrl" alt="">
       {{currentMusic.name}} {{currentIndex}}
-      {{fulltime}}
+      {{passedTime}} / {{fullTime}}
+      <progress-bar :played="played"></progress-bar>
     </div>
     <div>
       <button @click="changeMusic('prev')">prev</button>
       <button @click="toggle">{{media.paused? 'play' : 'pause'}}</button>
       <button @click="changeMusic('next')">next</button>
     </div>
+    <!-- <span>{{musicList.length}}</span> -->
   </div>
 </template>
 <script>
 import PlayerController from './PlayerController'
+import ProgressBar from './ProgressBar'
 import { mapState, mapMutations } from 'vuex';
 import { ReadyState } from '../constants'
 const mediaEvents = ['abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting'];
@@ -43,12 +46,19 @@ export default {
     currentIndex() {
       return this.musicList.findIndex(el => el.id === this.currentMusic.id);
     },
-    fulltime() {
+    fullTime() {
       return this.timeSecondsFormat(this.media.duration)
+    },
+    passedTime() {
+      return this.timeSecondsFormat(this.media.currentTime)
+    },
+    played() {
+      return this.media.currentTime / this.media.duration
     },
   },
   components: {
     PlayerController,
+    ProgressBar,
   },
   watch:{
     'musicList': {
@@ -168,6 +178,7 @@ export default {
   background: #fff;
   border-top: 1px solid #ccc;
   padding: 10px;
+  box-sizing: border-box;
   img{
     border-radius: 50%;
   }
