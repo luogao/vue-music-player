@@ -119,7 +119,6 @@ export default {
       this.audio.pause();
     },
     toggle() {
-      console.log(this.media.paused)
       this.audio.paused ? this.play() : this.pause();
     },
     prevIndex () {
