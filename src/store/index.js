@@ -9,6 +9,7 @@ const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
   state: {
     audio: new Audio(),
+    currentMusic: null,
     media: {
       autoplay: false,
       controller: null,
@@ -27,16 +28,28 @@ const store = new Vuex.Store({
       volume: 1,
     },
     volume: 1,
-    musicList: [],
     currentSong: null,
-    playList: null,
+    musicList: [],
     isPlaying: false,
     player: null,
+    setMusicListId: null,
   },
   getters: {
     currentSong: state => state.musicList[state.currentIndex],
   },
   mutations: {
+    syncMedia: (state, audio) => {
+      Object.keys(state.media).forEach(key =>{
+        state.media[key] = audio[key];
+      });
+    },
+    setMusic: (state, music) => {
+      state.currentMusic = music;
+      console.log(state.currentMusic);
+    },
+    setMusicList: (state, list) => {
+      state.musicList = list
+    },
     next: (state) => {
       if (state.currentIndex === (state.musicList.length - 1)) {
         state.currentIndex = -1;
@@ -49,27 +62,20 @@ const store = new Vuex.Store({
       }
       state.currentIndex -= 1;
     },
-    play: ({ player }) => {
-      player.play();
-    },
     pause: ({ player }) => {
       player.pause();
     },
     init: (state) => {
       state.player = new LGPlayer();
     },
-    setPlayList: (state, playList) => {
-      if (state.playList && state.playList.id !== playList.id) {
-        state.playList = { ...playList };
-      }
-      if (!state.playList) {
-        state.playList = { ...playList };
-      }
-      state.player.setPlayList(state.playList);
+    setMusicList: (state, musicList) => {
+      state.musicList = [...musicList];
+    },
+    setMusicListId: (state, id) => {
+      state.musicListId = id;
     },
     setCurSong: (state, song) => {
       state.currentSong = { ...song };
-      state.player.setSong(state.currentSong);
     },
   },
   actions: {
@@ -83,14 +89,14 @@ const store = new Vuex.Store({
         commit('prev');
       }, 1000);
     },
-    play: ({ commit }) => {
-      commit('play');
-    },
     pause: ({ commit }) => {
       commit('pause');
     },
-    setPlayList: ({ commit }, playList) => {
-      commit('setPlayList', playList);
+    setMusicList: ({ commit, state }, musicList) => {
+      if (state.musicListId !== musicList.id) {
+        commit('setMusicListId', musicList.id);
+        commit('setMusicList', musicList.tracks);
+      }
     },
     setCurSong: async ({ commit, dispatch }, song) => {
       const res = await Request.getMusic(song.id);
@@ -100,7 +106,6 @@ const store = new Vuex.Store({
         url,
       };
       commit('setCurSong', _song);
-      dispatch('play');
     },
   },
 });

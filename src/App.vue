@@ -1,22 +1,25 @@
 <template>
   <div id="app">
     <router-view/>
-    <player :config='config'></player>
+    <player ref="player" :music-list='musicList'></player>
   </div>
 </template>
 
 <script>
 import Player from '@/components/Player';
-
+import { mapState } from 'vuex';
 export default {
   name: 'App',
   data() {
-    return {
-      config: {},
-    }
+    return {}
+  },
+  computed: {
+    ...mapState([
+      'musicList',
+    ]),
   },
   created() {
-    this.$store.commit('init');
+    // this.$store.commit('init');
   },
   components: {
     Player,
