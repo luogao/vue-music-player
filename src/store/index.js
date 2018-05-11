@@ -26,13 +26,16 @@ const store = new Vuex.Store({
       src: null,
       volume: 1,
     },
-    volume: 1,
     musicList: [],
     isPlaying: false,
     player: null,
     setMusicListId: null,
   },
-  getters: {},
+  getters: {
+    volume(state) {
+      return state.media.volume;
+    },
+  },
   mutations: {
     syncMedia: (state, audio) => {
       Object.keys(state.media).forEach((key) => {
@@ -47,6 +50,9 @@ const store = new Vuex.Store({
     },
     setMusicListId: (state, id) => {
       state.musicListId = id;
+    },
+    setVolume: (state, volume) => {
+      state.audio.volume = volume;
     },
   },
   actions: {

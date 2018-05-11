@@ -5,6 +5,9 @@
       {{currentMusic.name}} {{currentIndex}}
       {{passedTime}} / {{fullTime}}
       <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
+      <div class="volume">
+        <volume-bar @change="volumeHandler" :volume="volume"></volume-bar>
+      </div>
     </div>
     <div>
       <button @click="changeMusic('prev')">prev</button>
@@ -15,8 +18,9 @@
   </div>
 </template>
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapGetters } from 'vuex';
 import PlayerController from './PlayerController';
+import VolumeBar from './VolumeBar';
 import ProgressBar from './ProgressBar';
 import { ReadyState } from '../constants';
 import { timeSecondsFormat } from '../utils';
@@ -36,10 +40,6 @@ export default {
       type: Array,
       required: true,
     },
-    volume: {
-      default: 1,
-      type: Number,
-    },
     preload: {
       default: 'auto',
       type: String,
@@ -50,6 +50,9 @@ export default {
     },
   },
   computed: {
+    ...mapGetters([
+      'volume',
+    ]),
     ...mapState([
       'audio',
       'media',
@@ -77,6 +80,7 @@ export default {
   components: {
     PlayerController,
     ProgressBar,
+    VolumeBar,
   },
   watch: {
     currentMusic: {
@@ -102,6 +106,7 @@ export default {
     ...mapMutations([
       'syncMedia',
       'setMusic',
+      'setVolume',
     ]),
     play(music) {
       if (!music) {
@@ -156,6 +161,9 @@ export default {
     endedHandler() {
       this.changeMusic('next');
     },
+    volumeHandler(percent) {
+      this.setVolume(percent * 1);
+    },
     progressHandler(percent) {
       const changeTime = percent * this.media.duration;
       this.setCurrentTime(changeTime);
@@ -189,6 +197,9 @@ export default {
   }
   button{
     border: 1px solid #ccc;
+  }
+  .volume{
+    width: 80px;
   }
 }
 </style>
