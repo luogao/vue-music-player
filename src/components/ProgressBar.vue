@@ -2,7 +2,12 @@
   <div class="progress-wrapper" @click="clickHandler($event)">
     <div ref="bar" class="progress-bar">
       <div class="played" :style="playedStyle">
-        <div class="handler" @touchstart="touchStartHandler" @touchend="touchEndHandler" @touchmove="touchMoveHandler"></div>
+        <div class="handler"
+          @touchstart="touchStartHandler"
+          @touchend="touchEndHandler"
+          @touchmove="touchMoveHandler"
+        >
+        </div>
       </div>
       <div class="loaded" :style="loadedStyle"></div>
     </div>
@@ -10,6 +15,7 @@
 </template>
 <script>
 import { getRelativePosition } from '../utils';
+
 export default {
   name: 'progress-bar',
   data() {
@@ -37,37 +43,35 @@ export default {
         if (this.isHold) return;
         this.currentPlayed = val;
       },
-    }
+    },
   },
   computed: {
     playedStyle() {
       return {
-        width: isNaN(this.currentPlayed) ? 0 :(this.currentPlayed * 100) + '%',
-      }
+        width: isNaN(this.currentPlayed) ? 0 : `${(this.currentPlayed * 100)}%`,
+      };
     },
     loadedStyle() {
       return {
-        width: isNaN(this.loaded) ? 0 :(this.loaded * 100) + '%',
-      }
+        width: isNaN(this.loaded) ? 0 : `${(this.loaded * 100)}%`,
+      };
     },
   },
   created() {},
   methods: {
     clickHandler(e) {
       if (this.isHold) return;
-      console.log('click')
       const target = this.$refs.bar;
       const { x } = getRelativePosition(target, e.clientX, e.clientY);
       const percent = x / target.clientWidth;
       this.$emit('change', percent);
     },
-    touchStartHandler(e) {
+    touchStartHandler() {
       this.isHold = true;
     },
-    touchEndHandler(e) {
-      console.log('touchend')
+    touchEndHandler() {
       this.$emit('change', this.currentPlayed);
-      setTimeout(() => this.isHold = false);
+      this.isHold = false;
     },
     touchMoveHandler(e) {
       if (this.isHold) {
@@ -81,8 +85,8 @@ export default {
         }
         this.currentPlayed = percent;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped lang="scss">

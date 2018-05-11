@@ -15,10 +15,12 @@
   </div>
 </template>
 <script>
-import PlayerController from './PlayerController'
-import ProgressBar from './ProgressBar'
 import { mapState, mapMutations } from 'vuex';
-import { ReadyState } from '../constants'
+import PlayerController from './PlayerController';
+import ProgressBar from './ProgressBar';
+import { ReadyState } from '../constants';
+import { timeSecondsFormat } from '../utils';
+
 const mediaEvents = ['abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting'];
 
 export default {
@@ -28,7 +30,9 @@ export default {
   },
   props: {
     musicList: {
-      default: [],
+      default() {
+        return [];
+      },
       type: Array,
       required: true,
     },
@@ -55,16 +59,16 @@ export default {
       return this.musicList.findIndex(el => el.id === this.currentMusic.id);
     },
     fullTime() {
-      return this.timeSecondsFormat(this.media.duration)
+      return timeSecondsFormat(this.media.duration);
     },
     passedTime() {
-      return this.timeSecondsFormat(this.media.currentTime)
+      return timeSecondsFormat(this.media.currentTime);
     },
     played() {
-      return this.media.currentTime / this.media.duration
+      return this.media.currentTime / this.media.duration;
     },
     loaded() {
-      if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) {
+      if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
         return this.media.buffered.end(this.media.buffered.length - 1) / this.media.duration;
       }
       return 0;
@@ -74,27 +78,19 @@ export default {
     PlayerController,
     ProgressBar,
   },
-  watch:{
-    'musicList': {
+  watch: {
+    currentMusic: {
       deep: true,
       handler(val) {
-        console.log('musicList', val);
-      },
-    },
-    'currentMusic': {
-      deep: true,
-      handler(val) {
-        console.log('currentMusic', val)
-        this.play(val)
+        this.play(val);
       },
     },
   },
   created() {
-    console.log(this.audio)
     const currentMusic = this.currentMusic;
     if (currentMusic) this.play(null, currentMusic);
-    mediaEvents.forEach(event => {
-      this.audio.addEventListener(event, evt => {
+    mediaEvents.forEach((event) => {
+      this.audio.addEventListener(event, (evt) => {
         this.syncMedia(this.audio);
         this.$emit(event, evt);
       });
@@ -108,91 +104,72 @@ export default {
       'setMusic',
     ]),
     play(music) {
-      console.log('music', music)
       if (!music) {
-        if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList[0]); // 默认播放第一个歌曲
-        else if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) this.audio.play();
+        if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList[0]);
+        else if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
+          this.audio.play();
+        }
         return 0;
       }
-      if (typeof music !== 'object' && music) music = this.musicList[index];
       if (this.currentMusic && music.id === this.currentMusic.id && !this.audio.paused) {
-        return;
+        return 0;
       }
-      this.setMusic(music)
-      return new Promise(resolve => {
+      this.setMusic(music);
+      return new Promise((resolve) => {
         this.audio.src = music.url;
         this.audio.preload = this.preload;
         this.audio.autoplay = this.autoplay;
         this.audio.volume = this.volume;
-        this.audio.oncanplay = function() {
-          this.play();
+        this.audio.oncanplay = () => {
+          this.audio.play();
           resolve();
-        }
-      })
+        };
+      });
     },
     pause() {
       this.audio.pause();
     },
     toggle() {
-      this.audio.paused ? this.play() : this.pause();
+      if (this.audio.paused) {
+        this.play();
+      } else {
+        this.pause();
+      }
     },
-    prevIndex () {
+    prevIndex() {
       if (this.musicList.length > 1) {
         return this.currentIndex - 1 < 0 ? this.musicList.length - 1 : this.currentIndex - 1;
-      } else {
-        return 0;
       }
+      return 0;
     },
-    nextIndex () {
+    nextIndex() {
       if (this.musicList.length > 1) {
         return (this.currentIndex + 1) % this.musicList.length;
-      } else {
-        return 0;
       }
+      return 0;
     },
-    async changeMusic (type) {
+    async changeMusic(type) {
       const index = type === 'next' ? this.nextIndex() : this.prevIndex();
       const music = this.musicList[index];
       await this.play(music);
     },
-    endedHandler () {
+    endedHandler() {
       this.changeMusic('next');
-    },
-    timeSecondsFormat (time){
-      time = time || 0
-      const minutes = Math.floor(time / 60)
-      const seconds = Math.floor(time % 60)
-      return `${this.padStart(minutes.toString(), 2, '0')}:${this.padStart(seconds.toString(), 2, '0')}`
-    },
-    padStart(target, targetLength,padString) {
-      // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
-      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
-      padString = String((typeof padString !== 'undefined' ? padString : ' '));
-      if (this.length > targetLength) {
-        return String(target);
-      }
-      else {
-        targetLength = targetLength-target.length;
-        if (targetLength > padString.length) {
-            padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
-        }
-        return padString.slice(0,targetLength) + String(target);
-      }
     },
     progressHandler(percent) {
       const changeTime = percent * this.media.duration;
       this.setCurrentTime(changeTime);
     },
-    setCurrentTime (time) {
+    setCurrentTime(time) {
       if ('fastSeek' in this.audio) {
         this.audio.fastSeek(time);
         return this.media.currentTime;
       }
-      if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) {
+      if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
         this.audio.currentTime = time;
         return this.media.currentTime;
       }
+      return this.media.currentTime;
     },
   },
 };

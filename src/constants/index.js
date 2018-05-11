@@ -14,7 +14,6 @@ export const PlayMode = {
   RANDOM: 'random', // 随机
 };
 
-
 export const ReadyState = {
   /** 没有关于音频是否就绪的信息 */
   HAVE_NOTHING: 0,
@@ -25,5 +24,5 @@ export const ReadyState = {
   /** 当前及至少下一帧的数据是可用的 */
   HAVE_FUTURE_DATA: 3,
   /** 可用数据足以开始播放 */
-  HAVE_ENOUGH_DATA: 4
+  HAVE_ENOUGH_DATA: 4,
 };

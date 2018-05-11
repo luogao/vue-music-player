@@ -18,8 +18,8 @@
   </div>
 </template>
 <script>
-import Request from '../api';
 import { mapActions, mapState } from 'vuex';
+import Request from '../api';
 
 export default {
   name: 'playlistdetail',
@@ -38,19 +38,16 @@ export default {
   methods: {
     ...mapActions([
       'setMusicList',
-      'setCurSong'
     ]),
     async getListDetail() {
       const { id } = this.$route.params;
       const res = await Request.getListDetail(id);
       const { tracks, ...playListInfo } = res.data.result;
-      const pArr = tracks.map(el => {
-        return Request.getMusic(el.id)
-      });
+      const pArr = tracks.map(el => Request.getMusic(el.id));
       const resultArr = await Promise.all(pArr);
-      const tracksWithUrl = resultArr.map((el,index) => {
-        let url = el.data.data[0].url;
-        return {...tracks[index], url};
+      const tracksWithUrl = resultArr.map((el, index) => {
+        const url = el.data.data[0].url;
+        return { ...tracks[index], url };
       });
       this.albumDetailTracks = [...tracksWithUrl];
       this.playListInfo = {
@@ -58,14 +55,14 @@ export default {
       };
     },
     async play(id) {
-      let selectedMusic = this.albumDetailTracks.filter(el => el.id === id)[0];
+      const selectedMusic = this.albumDetailTracks.filter(el => el.id === id)[0];
       if (this.musicList && this.musicList.id !== this.$route.params.id) {
-        let musicList = {
+        const musicList = {
           id: this.$route.params.id,
           tracks: this.albumDetailTracks,
         };
         this.setMusicList(musicList);
-      };
+      }
       this.$nextTick().then(this.$parent.$refs.player.play(selectedMusic));
     },
   },

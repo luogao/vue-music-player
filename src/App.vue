@@ -6,12 +6,13 @@
 </template>
 
 <script>
-import Player from '@/components/Player';
 import { mapState } from 'vuex';
+import Player from '@/components/Player';
+
 export default {
   name: 'App',
   data() {
-    return {}
+    return {};
   },
   computed: {
     ...mapState([
