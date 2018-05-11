@@ -4,7 +4,7 @@
       <img width="50" height="50" :src="currentMusic.album.blurPicUrl" alt="">
       {{currentMusic.name}} {{currentIndex}}
       {{passedTime}} / {{fullTime}}
-      <progress-bar :played="played"></progress-bar>
+      <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
     </div>
     <div>
       <button @click="changeMusic('prev')">prev</button>
@@ -36,6 +36,14 @@ export default {
       default: 1,
       type: Number,
     },
+    preload: {
+      default: 'auto',
+      type: String,
+    },
+    autoplay: {
+      default: false,
+      type: Boolean,
+    },
   },
   computed: {
     ...mapState([
@@ -54,6 +62,12 @@ export default {
     },
     played() {
       return this.media.currentTime / this.media.duration
+    },
+    loaded() {
+      if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) {
+        return this.media.buffered.end(this.media.buffered.length - 1) / this.media.duration;
+      }
+      return 0;
     },
   },
   components: {
@@ -76,6 +90,7 @@ export default {
     },
   },
   created() {
+    console.log(this.audio)
     const currentMusic = this.currentMusic;
     if (currentMusic) this.play(null, currentMusic);
     mediaEvents.forEach(event => {
@@ -95,7 +110,7 @@ export default {
     play(music) {
       console.log('music', music)
       if (!music) {
-        if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList(0)); // 默认播放第一个歌曲
+        if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList[0]); // 默认播放第一个歌曲
         else if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) this.audio.play();
         return 0;
       }
@@ -165,6 +180,20 @@ export default {
         return padString.slice(0,targetLength) + String(target);
       }
     },
+    progressHandler(percent) {
+      console.log(percent)
+      const changeTime = percent * this.media.duration;
+      console.log(changeTime)
+      this.setCurrentTime(changeTime);
+    },
+    setCurrentTime (time) {
+      if ('fastSeek' in this.audio) {
+        this.audio.fastSeek(time);
+        return this.media.currentTime;
+      }
+      this.audio.currentTime = time;
+      return this.media.currentTime;
+    },
   },
 };
 </script>
@@ -180,6 +209,9 @@ export default {
   box-sizing: border-box;
   img{
     border-radius: 50%;
+  }
+  button{
+    border: 1px solid #ccc;
   }
 }
 </style>

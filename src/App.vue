@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <router-view/>
-    <player ref="player" :music-list='musicList'></player>
+    <player ref="player" :volume="0" :music-list='musicList'></player>
   </div>
 </template>
 

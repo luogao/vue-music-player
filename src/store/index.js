@@ -24,6 +24,7 @@ const store = new Vuex.Store({
       muted: false,
       paused: true,
       readyState: null,
+      buffered: null,
       src: null,
       volume: 1,
     },
