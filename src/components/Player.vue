@@ -181,9 +181,7 @@ export default {
       }
     },
     progressHandler(percent) {
-      console.log(percent)
       const changeTime = percent * this.media.duration;
-      console.log(changeTime)
       this.setCurrentTime(changeTime);
     },
     setCurrentTime (time) {
@@ -191,8 +189,10 @@ export default {
         this.audio.fastSeek(time);
         return this.media.currentTime;
       }
-      this.audio.currentTime = time;
-      return this.media.currentTime;
+      if (Number.parseInt(this.media.readyState) >= ReadyState.HAVE_FUTURE_DATA) {
+        this.audio.currentTime = time;
+        return this.media.currentTime;
+      }
     },
   },
 };
