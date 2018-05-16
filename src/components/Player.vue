@@ -12,7 +12,7 @@
         @prev="changeMusic('prev')"
       >
       </player-controller>
-      <list></list>
+      <list @change="listChange" :current-id="currentMusic.id"></list>
     </div>
   </div>
 </template>
@@ -109,6 +109,9 @@ export default {
       'setMusic',
       'setVolume',
     ]),
+    listChange(music) {
+      this.play(music);
+    },
     play(music) {
       if (!music) {
         if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList[0]);

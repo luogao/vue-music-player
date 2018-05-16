@@ -28,6 +28,9 @@ const getRelativePosition = (el, x, y) => {
 };
 
 const timeSecondsFormat = (time = 0) => {
+  if (isNaN(time)) {
+    time = 0;
+  }
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${padStart(minutes.toString(), 2, '0')}:${padStart(seconds.toString(), 2, '0')}`;
