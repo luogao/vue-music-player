@@ -85,8 +85,6 @@ export default {
   background: #000;
   opacity: .8;
   z-index: 0;
-  animation: fadein .2s linear ;
-  animation-delay: .1;
 }
 .list-toggler{
   border: none;
@@ -128,14 +126,6 @@ export default {
   }
   to {
     transform: translateY(0);
-    opacity: 1;
-  }
-}
-@keyframes fadein{
-  from {
-    opacity: 0;
-  }
-  to {
     opacity: 1;
   }
 }

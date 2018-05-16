@@ -1,7 +1,7 @@
 <template>
   <div>
     <button @click="prev">上一首</button>
-    <button @click="toggle">{{media.pause ? '播放' : '暂停'}}</button>
+    <button @click="toggle">{{media.paused ? '播放' : '暂停'}}</button>
     <button @click="next">下一首</button>
   </div>
 </template>
