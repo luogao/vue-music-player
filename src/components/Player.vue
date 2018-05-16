@@ -5,16 +5,15 @@
       {{currentMusic.name}} {{currentIndex}}
       {{passedTime}} / {{fullTime}}
       <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
-      <div class="volume">
-        <volume-bar @change="volumeHandler" :volume="volume"></volume-bar>
-      </div>
+      <volume-bar style="width:100px" @change="volumeHandler" :volume="volume"></volume-bar>
+      <player-controller
+        @toggle="toggle"
+        @next="changeMusic('next')"
+        @prev="changeMusic('prev')"
+      >
+      </player-controller>
+      <list></list>
     </div>
-    <div>
-      <button @click="changeMusic('prev')">prev</button>
-      <button @click="toggle">{{media.paused? 'play' : 'pause'}}</button>
-      <button @click="changeMusic('next')">next</button>
-    </div>
-    <!-- <span>{{musicList.length}}</span> -->
   </div>
 </template>
 <script>
@@ -22,6 +21,7 @@ import { mapState, mapMutations, mapGetters } from 'vuex';
 import PlayerController from './PlayerController';
 import VolumeBar from './VolumeBar';
 import ProgressBar from './ProgressBar';
+import List from './List';
 import { ReadyState } from '../constants';
 import { timeSecondsFormat } from '../utils';
 
@@ -81,6 +81,7 @@ export default {
     PlayerController,
     ProgressBar,
     VolumeBar,
+    List,
   },
   watch: {
     currentMusic: {
@@ -194,9 +195,6 @@ export default {
   box-sizing: border-box;
   img{
     border-radius: 50%;
-  }
-  button{
-    border: 1px solid #ccc;
   }
   .volume{
     width: 80px;

@@ -94,8 +94,8 @@ export default {
   z-index: 10;
   padding: 10px 0;
   .progress-bar{
-    --progress-bar-height: 5px;
-    --handler-width: 10px;
+    --progress-bar-height: 2px;
+    --handler-width: 8px;
     width: 100%;
     height: var(--progress-bar-height);
     border-radius: 20px;

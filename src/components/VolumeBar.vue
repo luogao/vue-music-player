@@ -1,7 +1,7 @@
 <template>
   <div class="volume-wrapper" @click="clickHandler($event)">
     <div ref="bar" class="volume-bar">
-      <div class="played" :style="volumeStyle">
+      <div class="curVolume" :style="volumeStyle">
         <div class="handler"
           @touchstart="touchStartHandler"
           @touchend="touchEndHandler"
@@ -84,19 +84,17 @@ export default {
   z-index: 10;
   padding: 10px 0;
   .volume-bar{
-    --volume-bar-height: 5px;
-    --handler-width: 10px;
+    --volume-bar-height: 2px;
+    --handler-width: 8px;
     width: 100%;
     height: var(--volume-bar-height);
     border-radius: 20px;
     background: #ccc;
     position: relative;
-    .loaded,.played {
+    .curVolume {
       border-radius: 20px;
       position: absolute;
       height: 100%;
-    }
-    .played {
       background: #000;
       z-index: 1;
       .handler{
@@ -108,12 +106,6 @@ export default {
         right: calc(var(--handler-width) / -2);
         top: calc((var(--handler-width) - var(--volume-bar-height)) / -2);
       }
-    }
-    .loaded {
-      background: #000;
-      z-index: 0;
-      opacity: .1;
-      transition: all .3s ease-out;
     }
   }
 }
