@@ -4,7 +4,7 @@ import Wyurl from './constants';
 class MusicManager {
   constructor() {
     this.$http = axios.create({
-      baseURL: 'http://localhost:3000',
+      baseURL: 'http://localhost:5000',
     });
   }
 

@@ -8,7 +8,7 @@
           v-for="(item,index) in albumDetailTracks"
           :key="index"
         >
-          <img :src="item.album.blurPicUrl" alt="" width="50" height="50">
+          <img :src="item.al.picUrl" alt="" width="50" height="50">
           <a href="javascript:;" @click="play(item.id)">
             {{item.name}}
           </a>
@@ -42,7 +42,7 @@ export default {
     async getListDetail() {
       const { id } = this.$route.params;
       const res = await Request.getListDetail(id);
-      const { tracks, ...playListInfo } = res.data.result;
+      const { tracks, ...playListInfo } = res.data.playlist;
       const pArr = tracks.map(el => Request.getMusic(el.id));
       const resultArr = await Promise.all(pArr);
       const tracksWithUrl = resultArr.map((el, index) => {

@@ -1,7 +1,7 @@
 <template>
   <div class="player">
     <div v-if="currentMusic">
-      <img width="50" height="50" :src="currentMusic.album.blurPicUrl" alt="">
+      <img width="50" height="50" :src="currentMusic.al.picUrl" alt="">
       {{currentMusic.name}} {{currentIndex}}
       {{passedTime}} / {{fullTime}}
       <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
