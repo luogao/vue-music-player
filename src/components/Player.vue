@@ -14,6 +14,8 @@
       </player-controller>
       <list @change="listChange" :current-id="currentMusic.id"></list>
     </div>
+    <button @click="toggleLyric">歌词</button>
+    <lyric v-if="showLyric"></lyric>
   </div>
 </template>
 <script>
@@ -22,6 +24,7 @@ import PlayerController from './PlayerController';
 import VolumeBar from './VolumeBar';
 import ProgressBar from './ProgressBar';
 import List from './List';
+import Lyric from './Lyric';
 import { ReadyState } from '../constants';
 import { timeSecondsFormat } from '../utils';
 
@@ -30,7 +33,9 @@ const mediaEvents = ['abort', 'canplay', 'canplaythrough', 'durationchange', 'em
 export default {
   name: 'player',
   data() {
-    return {};
+    return {
+      showLyric: false
+    };
   },
   props: {
     musicList: {
@@ -82,6 +87,7 @@ export default {
     ProgressBar,
     VolumeBar,
     List,
+    Lyric
   },
   watch: {
     currentMusic: {
@@ -182,6 +188,9 @@ export default {
         return this.media.currentTime;
       }
       return this.media.currentTime;
+    },
+    toggleLyric() {
+      this.showLyric = !this.showLyric
     },
   },
 };
