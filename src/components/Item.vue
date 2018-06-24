@@ -1,6 +1,6 @@
 <template>
   <div class="list-item" @click="clickHandler" :class="active ? 'active' : ''">
-    <span class="name">{{music.name}}</span><span class="artist"> - {{music.artists[0].name}}</span>
+    <span class="name">{{music.name}}</span><span class="artist"> - {{music.artist}}</span>
   </div>
 </template>
 <script>
