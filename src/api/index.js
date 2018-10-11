@@ -1,10 +1,12 @@
 import axios from 'axios';
 import Wyurl from './constants';
 
+const PORT = "3000"
+
 class MusicManager {
   constructor() {
     this.$http = axios.create({
-      baseURL: 'http://localhost:3000',
+      baseURL: `http://localhost:${PORT}`,
     });
   }
 
@@ -29,6 +31,13 @@ class MusicManager {
   search(name) {
     if (name) {
       return this.$http.get(`${Wyurl.SEARCH}?keywords=${name}`);
+    }
+    return false;
+  }
+
+  getLyric(id) {
+    if (id) {
+      return this.$http.get(`${Wyurl.LYRIC}?id=${id}`);
     }
     return false;
   }
