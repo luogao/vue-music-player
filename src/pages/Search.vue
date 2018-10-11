@@ -5,7 +5,9 @@
     </div>
 
     <div class="result-wrapper">
-      <div class="result-list">
+
+      <div class="page-message" v-if="searchResult.length === 0">{{pageMessage}}</div>
+      <div class="result-list" v-else>
         <ul>
           <li v-for="song in searchResult" :key="song.id" >
             <div class="result-item" @click.stop="play(song)">
@@ -42,8 +44,9 @@ export default {
   name: "search",
   data() {
     return {
-      searchName: "陈小春",
-      searchResult: []
+      searchName: "",
+      searchResult: [],
+      pageMessage: "请搜索歌曲"
     };
   },
   mounted() {
@@ -96,6 +99,7 @@ export default {
     async onSeach() {
       const searchName = this.searchName;
       if (!searchName || beforeSearch === searchName) return;
+      this.pageMessage = `搜索 “${searchName}” 中，请稍后`;
       const res = await Request.search(searchName);
       const tracks = res.data.result.songs;
       const pArr = tracks.map(el => Request.getMusic(el.id));
@@ -133,27 +137,38 @@ export default {
   }
   .result-wrapper {
     margin: 50px auto 0 auto;
+    padding-bottom: 100px;
     max-width: 980px;
+    .page-message{
+      text-align: center;
+      font-size: 18px;
+      font-weight: 300;
+    }
     .result-list {
       ul {
         list-style: none;
         padding: 0;
+        li {
+          padding-bottom: 10px;
+          border-bottom: 1px solid #e1e1e1;
+        }
       }
       details {
-        padding-left: 20px;
         font-size: 14px;
         color: #212121;
         cursor: pointer;
         p {
           cursor: text;
+          word-break: break-all;
         }
       }
       .result-item {
-        padding: 10px 10px 8px 18px;
+        padding: 10px 10px 8px 0;
         border: 1px solid #fff;
         height: 43px;
         box-sizing: border-box;
         cursor: pointer;
+        
         &:hover {
           border: 1px solid #e1e1e1;
           background: #f2f2f2;

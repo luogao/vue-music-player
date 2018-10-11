@@ -6,7 +6,7 @@ const PORT = "3000"
 class MusicManager {
   constructor() {
     this.$http = axios.create({
-      baseURL: `http://localhost:${PORT}`,
+      baseURL: `http://192.168.73.117:${PORT}`,
     });
   }
 
