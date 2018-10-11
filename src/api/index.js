@@ -25,6 +25,13 @@ class MusicManager {
     }
     return false;
   }
+
+  search(name) {
+    if (name) {
+      return this.$http.get(`${Wyurl.SEARCH}?keywords=${name}`);
+    }
+    return false;
+  }
 }
 
 export default new MusicManager();

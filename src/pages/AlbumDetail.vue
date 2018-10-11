@@ -73,6 +73,7 @@ export default {
         };
         this.setMusicList(musicList);
       }
+      console.log(selectedMusic)
       this.$nextTick().then(this.$parent.$refs.player.play(selectedMusic));
     },
   },

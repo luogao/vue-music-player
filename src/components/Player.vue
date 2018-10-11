@@ -1,7 +1,7 @@
 <template>
   <div class="player">
     <div v-if="currentMusic">
-      <img width="50" height="50" :src="currentMusic.image" alt="">
+      <img width="50" height="50" :src="currentMusic.image || '../assets/default-song-cover.png'" alt="">
       {{currentMusic.name}}
       {{passedTime}} / {{fullTime}}
       <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
@@ -24,6 +24,7 @@ import ProgressBar from './ProgressBar';
 import List from './List';
 import { ReadyState } from '../constants';
 import { timeSecondsFormat } from '../utils';
+
 
 const mediaEvents = ['abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting'];
 

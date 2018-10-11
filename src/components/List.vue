@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="toggle" class="list-toggler">{{musicList.length}}</button>
+    <button v-if="musicList.length" @click="toggle" class="list-toggler">{{musicList.length}}</button>
     <div class="list-body" v-if="showList">
       <ul>
         <li v-for="music in musicList" :key="music.id">
