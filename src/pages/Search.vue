@@ -3,8 +3,15 @@
     <div class="input-wrapper">
       <input ref="searchInput" @keyup.enter="onSeach" type="text" placeholder="输入歌曲名" v-model="searchName">
     </div>
+    
     <div class="result-wrapper">
-      <div class="page-message">{{pageMessage}} <a href="#" @click="clearResult" v-if="searchResult.length > 0" class="clear-result-btn"> 清除 </a> </div>
+      <div class="page-message">{{pageMessage}} <span href="" @click.stop="clearResult" v-if="searchResult.length > 0" class="clear-result-btn"> 清除 </span> </div>
+      <div class="history-wrapper" v-if="searchResult.length === 0">
+        <div class="history-title">最近搜索：</div>
+        <div class="history-list">
+          <span @click="searchFromHistory(item)" class="history-item" v-for="item in history" :key="item">{{item}}</span>
+        </div>
+      </div>
       <div class="result-list">
         <ul>
           <li v-for="song in searchResult" :key="song.id" >
@@ -31,7 +38,6 @@
         </ul>
       </div>
     </div>
-
   </div>
 </template>
 <script>
@@ -39,6 +45,7 @@ import Request from "../api";
 import { timeSecondsFormat } from "../utils";
 
 let beforeSearch = "";
+const historyMaxLength = 10;
 
 export default {
   name: "search",
@@ -46,13 +53,37 @@ export default {
     return {
       searchName: "",
       searchResult: [],
-      pageMessage: "请搜索歌曲，敲击‘回车键’开始搜索"
+      pageMessage: "请搜索歌曲，敲击‘回车键’开始搜索",
+      history: []
     };
   },
   mounted() {
-    this.onSeach();
+    this.initHistory();
   },
   methods: {
+    searchFromHistory(name) {
+      this.searchName = name;
+      this.onSeach();
+    },
+    initHistory() {
+      const str = this.getLocalStroage("LG_WYY_SEARCH_HISTORY") || "";
+      this.history = str.split(",");
+    },
+    getLocalStroage(key) {
+      return window.localStorage.getItem(key);
+    },
+    setLocalStroage(key, data) {
+      window.localStorage.setItem(key, data);
+    },
+    clearLocalStroage(key) {
+      window.localStorage.removeItem(key);
+    },
+    addHistory(item) {
+      if (this.history.indexOf(item) === -1) {
+        this.history.length === historyMaxLength && this.history.shift();
+        this.history.push(item);
+      }
+    },
     clearResult() {
       this.searchName = "";
       this.searchResult = [];
@@ -75,22 +106,17 @@ export default {
     },
     async download(song) {
       const res = await Request.getMusic(song.id);
-      console.log(res);
       const url = res.data.data[0].url;
-
       const aLink = document.createElement("a");
       const evt = document.createEvent("HTMLEvents");
+
       aLink.download = song.name;
       aLink.href = url;
       aLink.target = "_blank";
       aLink.click();
-
-      console.log(aLink);
     },
     async play(sound) {
-      console.log(sound);
       const res = await Request.getMusic(sound.id);
-      console.log(res);
       const url = res.data.data[0].url;
       const soundData = {
         artist: sound.artist,
@@ -103,8 +129,12 @@ export default {
       this.$nextTick().then(this.$parent.$refs.player.play(soundData));
     },
     async onSeach() {
-      const searchName = this.searchName;
-      if (!searchName || beforeSearch === searchName) return;
+      const searchName = this.searchName.trim();
+      if (
+        (!searchName || beforeSearch === searchName) &&
+        this.searchResult.length > 0
+      )
+        return;
       this.pageMessage = `搜索 “${searchName}” 中，请稍后`;
       const res = await Request.search(searchName);
       const tracks = res.data.result.songs;
@@ -115,6 +145,8 @@ export default {
         return { ...tracks[index], url };
       });
       beforeSearch = searchName;
+      this.addHistory(searchName);
+      this.setLocalStroage("LG_WYY_SEARCH_HISTORY", this.history.join(","));
       this.searchResult = tracksWithUrl.map(el => {
         return {
           id: el.id,
@@ -130,6 +162,23 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.history-wrapper {
+  margin-top: 15px;
+  .history-title {
+  }
+  .history-list {
+    margin-top: 10px;
+    .history-item {
+      display: inline-block;
+      margin-right: 10px;
+      cursor: pointer;
+      font-weight: 300;
+      &:hover {
+        color: blueviolet;
+      }
+    }
+  }
+}
 .search-wrapper {
   .input-wrapper {
     margin: 50px auto 0 auto;
@@ -154,8 +203,12 @@ export default {
       font-size: 16px;
       font-weight: 300;
       .clear-result-btn {
+        cursor: pointer;
         font-size: 14px;
         color: darkred;
+        &:hover {
+          text-decoration: underline;
+        }
       }
     }
     .result-list {
