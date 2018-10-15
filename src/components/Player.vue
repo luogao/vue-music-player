@@ -1,12 +1,14 @@
 <template>
-  <div class="player">
-    <div v-if="currentMusic">
+  <div class="player" v-if="currentMusic">
+    <div>
       <img width="50" height="50" :src="currentMusic.image || '../assets/default-song-cover.png'" alt="">
       {{currentMusic.name}}
       {{passedTime}} / {{fullTime}}
       <progress-bar :played="played" :loaded="loaded" @change="progressHandler"></progress-bar>
       <volume-bar style="width:100px" @change="volumeHandler" :volume="volume"></volume-bar>
       <player-controller
+        :no-next='true'
+        :no-prev='true'
         @toggle="toggle"
         @next="changeMusic('next')"
         @prev="changeMusic('prev')"
@@ -14,25 +16,48 @@
       </player-controller>
       <list @change="listChange" :current-id="currentMusic.id"></list>
     </div>
-    <button @click="toggleLyric">歌词</button>
+    <button @click="toggleLyric" v-if="showLyric">歌词</button>
     <lyric v-if="showLyric"></lyric>
   </div>
 </template>
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex';
-import PlayerController from './PlayerController';
-import VolumeBar from './VolumeBar';
-import ProgressBar from './ProgressBar';
-import List from './List';
-import Lyric from './Lyric';
-import { ReadyState } from '../constants';
-import { timeSecondsFormat } from '../utils';
+import { mapState, mapMutations, mapGetters } from "vuex";
+import PlayerController from "./PlayerController";
+import VolumeBar from "./VolumeBar";
+import ProgressBar from "./ProgressBar";
+import List from "./List";
+import Lyric from "./Lyric";
+import { ReadyState } from "../constants";
+import { timeSecondsFormat } from "../utils";
 
-
-const mediaEvents = ['abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting'];
+const mediaEvents = [
+  "abort",
+  "canplay",
+  "canplaythrough",
+  "durationchange",
+  "emptied",
+  "ended",
+  "error",
+  "loadeddata",
+  "loadedmetadata",
+  "loadstart",
+  "pause",
+  "play",
+  "playing",
+  "progress",
+  "ratechange",
+  "readystatechange",
+  "seeked",
+  "seeking",
+  "stalled",
+  "suspend",
+  "timeupdate",
+  "volumechange",
+  "waiting"
+];
 
 export default {
-  name: 'player',
+  name: "player",
   data() {
     return {
       showLyric: false
@@ -44,26 +69,20 @@ export default {
         return [];
       },
       type: Array,
-      required: true,
+      required: true
     },
     preload: {
-      default: 'auto',
-      type: String,
+      default: "auto",
+      type: String
     },
     autoplay: {
       default: false,
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
   computed: {
-    ...mapGetters([
-      'volume',
-    ]),
-    ...mapState([
-      'audio',
-      'media',
-      'currentMusic',
-    ]),
+    ...mapGetters(["volume"]),
+    ...mapState(["audio", "media", "currentMusic"]),
     currentIndex() {
       return this.musicList.findIndex(el => el.id === this.currentMusic.id);
     },
@@ -77,11 +96,17 @@ export default {
       return this.media.currentTime / this.media.duration;
     },
     loaded() {
-      if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
-        return this.media.buffered.end(this.media.buffered.length - 1) / this.media.duration;
+      if (
+        Number.parseInt(this.media.readyState, 10) >=
+        ReadyState.HAVE_FUTURE_DATA
+      ) {
+        return (
+          this.media.buffered.end(this.media.buffered.length - 1) /
+          this.media.duration
+        );
       }
       return 0;
-    },
+    }
   },
   components: {
     PlayerController,
@@ -95,43 +120,47 @@ export default {
       deep: true,
       handler(val) {
         this.play(val);
-      },
-    },
+      }
+    }
   },
   created() {
     const currentMusic = this.currentMusic;
     if (currentMusic) this.play(null, currentMusic);
-    mediaEvents.forEach((event) => {
-      this.audio.addEventListener(event, (evt) => {
+    mediaEvents.forEach(event => {
+      this.audio.addEventListener(event, evt => {
         this.syncMedia(this.audio);
         this.$emit(event, evt);
       });
     });
     this.syncMedia(this.audio);
-    this.audio.addEventListener('ended', this.endedHandler);
+    this.audio.addEventListener("ended", this.endedHandler);
   },
   methods: {
-    ...mapMutations([
-      'syncMedia',
-      'setMusic',
-      'setVolume',
-    ]),
+    ...mapMutations(["syncMedia", "setMusic", "setVolume"]),
     listChange(music) {
       this.play(music);
     },
     play(music) {
       if (!music) {
-        if (!this.currentMusic.url && this.musicList.length > 0) this.play(this.musicList[0]);
-        else if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
+        if (!this.currentMusic.url && this.musicList.length > 0)
+          this.play(this.musicList[0]);
+        else if (
+          Number.parseInt(this.media.readyState, 10) >=
+          ReadyState.HAVE_FUTURE_DATA
+        ) {
           this.audio.play();
         }
         return 0;
       }
-      if (this.currentMusic && music.id === this.currentMusic.id && !this.audio.paused) {
+      if (
+        this.currentMusic &&
+        music.id === this.currentMusic.id &&
+        !this.audio.paused
+      ) {
         return 0;
       }
       this.setMusic(music);
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         this.audio.src = music.url;
         this.audio.preload = this.preload;
         this.audio.autoplay = this.autoplay;
@@ -154,7 +183,9 @@ export default {
     },
     prevIndex() {
       if (this.musicList.length > 1) {
-        return this.currentIndex - 1 < 0 ? this.musicList.length - 1 : this.currentIndex - 1;
+        return this.currentIndex - 1 < 0
+          ? this.musicList.length - 1
+          : this.currentIndex - 1;
       }
       return 0;
     },
@@ -165,12 +196,12 @@ export default {
       return 0;
     },
     async changeMusic(type) {
-      const index = type === 'next' ? this.nextIndex() : this.prevIndex();
+      const index = type === "next" ? this.nextIndex() : this.prevIndex();
       const music = this.musicList[index];
       await this.play(music);
     },
     endedHandler() {
-      this.changeMusic('next');
+      this.changeMusic("next");
     },
     volumeHandler(percent) {
       this.setVolume(percent * 1);
@@ -180,24 +211,27 @@ export default {
       this.setCurrentTime(changeTime);
     },
     setCurrentTime(time) {
-      if ('fastSeek' in this.audio) {
+      if ("fastSeek" in this.audio) {
         this.audio.fastSeek(time);
         return this.media.currentTime;
       }
-      if (Number.parseInt(this.media.readyState, 10) >= ReadyState.HAVE_FUTURE_DATA) {
+      if (
+        Number.parseInt(this.media.readyState, 10) >=
+        ReadyState.HAVE_FUTURE_DATA
+      ) {
         this.audio.currentTime = time;
         return this.media.currentTime;
       }
       return this.media.currentTime;
     },
     toggleLyric() {
-      this.showLyric = !this.showLyric
-    },
-  },
+      this.showLyric = !this.showLyric;
+    }
+  }
 };
 </script>
 <style scoped lang="scss">
-.player{
+.player {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -206,10 +240,10 @@ export default {
   border-top: 1px solid #ccc;
   padding: 10px;
   box-sizing: border-box;
-  img{
+  img {
     border-radius: 50%;
   }
-  .volume{
+  .volume {
     width: 80px;
   }
 }

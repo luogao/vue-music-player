@@ -1,30 +1,30 @@
 <template>
   <div class="search-wrapper">
     <div class="input-wrapper">
-      <input @keyup.enter="onSeach" type="text" placeholder="输入歌曲名" v-model="searchName">
+      <input ref="searchInput" @keyup.enter="onSeach" type="text" placeholder="输入歌曲名" v-model="searchName">
     </div>
-
     <div class="result-wrapper">
-
-      <div class="page-message" v-if="searchResult.length === 0">{{pageMessage}}</div>
-      <div class="result-list" v-else>
+      <div class="page-message">{{pageMessage}} <a href="#" @click="clearResult" v-if="searchResult.length > 0" class="clear-result-btn"> 清除 </a> </div>
+      <div class="result-list">
         <ul>
           <li v-for="song in searchResult" :key="song.id" >
             <div class="result-item" @click.stop="play(song)">
-              <span class="item-name">
-                {{song.name}}
-              </span>
-              <span class="item-artist">
-                - {{song.artist}}
-              </span>
-              <span class="item-duration">
-                {{song.duration}}
-              </span>
+              <div>
+                <span class="item-name">
+                  {{song.name}}
+                </span>
+                <span class="item-artist">
+                  - {{song.artist}}
+                </span>
+                <span class="item-duration">
+                  {{song.duration}}
+                </span>
+              </div>
               <a @click.stop class="download-btn" :download="song.name" :href="song.url" target="_blank">下载</a>
             </div>
             <details>
               <summary>显示链接（若链接为空，说明下不了）</summary>
-              <p>{{song.url}}</p>
+              <p>{{song.url ? song.url : '空'}}</p>
               <!-- <button @click="copyUrl(song.url)">复制</button> -->
             </details>
           </li>
@@ -46,13 +46,19 @@ export default {
     return {
       searchName: "",
       searchResult: [],
-      pageMessage: "请搜索歌曲"
+      pageMessage: "请搜索歌曲，敲击‘回车键’开始搜索"
     };
   },
   mounted() {
     this.onSeach();
   },
   methods: {
+    clearResult() {
+      this.searchName = "";
+      this.searchResult = [];
+      this.$refs.searchInput.focus();
+      this.pageMessage = "请搜索歌曲，敲击‘回车键’开始搜索";
+    },
     copyUrl(url) {
       const input = document.createElement("input");
       input.setAttribute("readonly", "readonly");
@@ -108,7 +114,6 @@ export default {
         const url = el.data.data[0].url;
         return { ...tracks[index], url };
       });
-
       beforeSearch = searchName;
       this.searchResult = tracksWithUrl.map(el => {
         return {
@@ -119,6 +124,7 @@ export default {
           url: el.url
         };
       });
+      this.pageMessage = `搜索 “${searchName}” 完成，结果如下👇`;
     }
   }
 };
@@ -131,18 +137,26 @@ export default {
     input {
       width: 300px;
       height: 30px;
-      padding: 0 5px;
-      font-size: 16px;
+      padding: 0;
+      font-size: 18px;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      outline: none;
+      font-weight: 300;
     }
   }
   .result-wrapper {
-    margin: 50px auto 0 auto;
-    padding-bottom: 100px;
-    max-width: 980px;
-    .page-message{
+    margin: 30px auto 0 auto;
+    padding: 15px 15px 150px 15px;
+    max-width: 600px;
+    .page-message {
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 300;
+      .clear-result-btn {
+        font-size: 14px;
+        color: darkred;
+      }
     }
     .result-list {
       ul {
@@ -168,13 +182,21 @@ export default {
         height: 43px;
         box-sizing: border-box;
         cursor: pointer;
-        
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         &:hover {
           border: 1px solid #e1e1e1;
           background: #f2f2f2;
         }
         .item-name {
           font-size: 16px;
+          max-width: 200px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          white-space: nowrap;
+          vertical-align: middle;
         }
         .item-artist {
           font-size: 12px;
@@ -186,6 +208,7 @@ export default {
         }
         .download-btn {
           font-size: 14px;
+          flex-shrink: 0;
         }
       }
     }
